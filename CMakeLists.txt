@@ -25,28 +25,15 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # --------------------------------------------------
-# Library
+# Compile flags and other options
 # --------------------------------------------------
 
-set(COMMON_INCLUDE ${PROJECT_SOURCE_DIR}/include/common)
+add_library(project_options INTERFACE)
 
-add_library(io_lib
-    src/IO/args_parser.cpp
-)
+target_compile_features(project_options INTERFACE cxx_std_20)
 
-target_include_directories(io_lib
-    PUBLIC
-        ${PROJECT_SOURCE_DIR}/include/IO
-        ${COMMON_INCLUDE}
-)
-
-target_compile_features(io_lib
-    PUBLIC cxx_std_20
-)
-
-# Warnings
-target_compile_options(io_lib
-    PRIVATE
+target_compile_options(project_options
+    INTERFACE
         $<$<CXX_COMPILER_ID:GNU,Clang>:
             -Wall
             -Wextra
@@ -73,6 +60,42 @@ target_compile_options(io_lib
 )
 
 # --------------------------------------------------
+# Libraries
+# --------------------------------------------------
+
+set(COMMON_INCLUDE ${PROJECT_SOURCE_DIR}/include/common)
+
+set(IO_SRC_DIR ${PROJECT_SOURCE_DIR}/src/IO)
+set(IO_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/IO)
+
+set(UTILS_SRC_DIR ${PROJECT_SOURCE_DIR}/src/utils)
+
+add_library(io_lib
+    ${IO_SRC_DIR}/args_parser.cpp
+    ${IO_SRC_DIR}/output.cpp
+)
+
+add_library(utils_lib
+    ${UTILS_SRC_DIR}/dispatcher.cpp
+)
+
+target_include_directories(io_lib
+    PUBLIC
+        ${IO_INCLUDE_DIR}
+        ${COMMON_INCLUDE}
+)
+
+target_include_directories(utils_lib
+    PUBLIC
+        ${IO_INCLUDE_DIR}
+        ${PROJECT_SOURCE_DIR}/include/utils
+        ${COMMON_INCLUDE}
+)
+
+target_link_libraries(io_lib PUBLIC project_options)
+target_link_libraries(utils_lib PRIVATE project_options)
+
+# --------------------------------------------------
 # Executable
 # --------------------------------------------------
 
@@ -81,7 +104,7 @@ add_executable(program
 )
 
 target_link_libraries(program
-    PRIVATE io_lib
+    PRIVATE project_options io_lib utils_lib
 )
 
 # --------------------------------------------------

@@ -1,7 +1,8 @@
 #include "args_parser.hpp"
 #include "globals.hpp"
 
-ParseStatusCode ArgsParser::parse(int argc, char* argv[])
+ParseStatusCode ArgsParser::parse(int argc, char* argv[],
+                                  ProgramOptions& options)
 {
     int opt = 0, optionIndex = 0;
 
@@ -14,7 +15,10 @@ ParseStatusCode ArgsParser::parse(int argc, char* argv[])
     const char* SHORT_OPTIONS = "hi:o:";  // NOLINT
 
     if(argc <= 1)
-        return ParseStatusCode::helpMsg;
+    {
+        options.printHelpMsg = true;
+        return ParseStatusCode::validArgs;
+    }
 
     while((opt = getopt_long(argc, argv, SHORT_OPTIONS, LONG_OPTIONS,
                              &optionIndex)) != -1)
@@ -22,14 +26,15 @@ ParseStatusCode ArgsParser::parse(int argc, char* argv[])
         switch(opt)
         {
         case 'h':
-            return ParseStatusCode::helpMsg;
+            options.printHelpMsg = true;
+            return ParseStatusCode::validArgs;
 
         case 'i':
-            setInFileName(std::string(optarg));
+            options.inputFileName = std::string(optarg);
             break;
 
         case 'o':
-            setOutFileName(std::string(optarg));
+            options.outputFileName = std::string(optarg);
             break;
 
         default:
@@ -40,27 +45,7 @@ ParseStatusCode ArgsParser::parse(int argc, char* argv[])
     return ParseStatusCode::validArgs;
 }
 
-const std::string& ArgsParser::getInFileName() const
-{
-    return _inFileName;
-}
-
-const std::string& ArgsParser::getOutFileName() const
-{
-    return _outFileName;
-}
-
 const std::vector<FilterDescriptor>& ArgsParser::getFiltersVec() const
 {
     return _filterDescriptors;
-}
-
-void ArgsParser::setInFileName(std::string inFileName)
-{
-    _inFileName = std::move(inFileName);
-}
-
-void ArgsParser::setOutFileName(std::string outFileName)
-{
-    _outFileName = std::move(outFileName);
 }
