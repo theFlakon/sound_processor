@@ -5,12 +5,13 @@ int main(int argc, char* argv[])
 {
     ArgsParser parser{};
     Dispatcher dispatcher{};
-    ProgramOptions options{};
 
-    ParseStatusCode parseStatusCode = parser.parse(argc, argv, options);
+    ParseStatusCode parseStatusCode = parser.parse(argc, argv);
 
-    if(parseStatusCode == ParseStatusCode::validArgs)
+    if(parseStatusCode != ParseStatusCode::validArgs)
         return EXIT_FAILURE;
+
+    dispatcher.process(parser);
 
     return EXIT_SUCCESS;
 }

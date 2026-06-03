@@ -63,37 +63,38 @@ target_compile_options(project_options
 # Libraries
 # --------------------------------------------------
 
-set(COMMON_INCLUDE ${PROJECT_SOURCE_DIR}/include/common)
+include(GNUInstallDirs)
 
-set(IO_SRC_DIR ${PROJECT_SOURCE_DIR}/src/IO)
-set(IO_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/IO)
+function(add_module_library LIB_NAME MODULE_NAME)
+    set(SRC_DIR     ${PROJECT_SOURCE_DIR}/src/${MODULE_NAME})
+    set(INC_DIR     ${PROJECT_SOURCE_DIR}/include/${MODULE_NAME})
 
-set(UTILS_SRC_DIR ${PROJECT_SOURCE_DIR}/src/utils)
+    add_library(${LIB_NAME} ${ARGN})
 
-add_library(io_lib
-    ${IO_SRC_DIR}/args_parser.cpp
-    ${IO_SRC_DIR}/output.cpp
+    target_include_directories(${LIB_NAME}
+        PUBLIC
+            ${INC_DIR}
+    )
+    target_link_libraries(${LIB_NAME} PUBLIC project_options)
+endfunction()
+
+add_module_library(io_lib IO
+    src/IO/args_parser.cpp
+    src/IO/output.cpp
+    src/IO/io_bin.cpp
 )
 
-add_library(utils_lib
-    ${UTILS_SRC_DIR}/dispatcher.cpp
+add_module_library(utils_lib utils
+    src/utils/dispatcher.cpp
 )
 
-target_include_directories(io_lib
-    PUBLIC
-        ${IO_INCLUDE_DIR}
-        ${COMMON_INCLUDE}
+add_module_library(sound_lib sound_module
+    src/sound_module/waveform.cpp
 )
 
-target_include_directories(utils_lib
-    PUBLIC
-        ${IO_INCLUDE_DIR}
-        ${PROJECT_SOURCE_DIR}/include/utils
-        ${COMMON_INCLUDE}
-)
-
-target_link_libraries(io_lib PUBLIC project_options)
-target_link_libraries(utils_lib PRIVATE project_options)
+target_link_libraries(io_lib PUBLIC sound_lib utils_lib)
+target_link_libraries(utils_lib PUBLIC io_lib)
+#target_link_libraries(sound_lib PUBLIC )
 
 # --------------------------------------------------
 # Executable

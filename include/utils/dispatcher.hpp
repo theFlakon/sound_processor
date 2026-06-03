@@ -1,7 +1,7 @@
 #ifndef DISPATCHER_HPP
 #define DISPATCHER_HPP
 
-#include "general.hpp"
+#include "args_parser.hpp"
 
 enum class ProcessStatusCode
 {
@@ -14,7 +14,7 @@ class Dispatcher
 public:
     Dispatcher() = default;
 
-    ProcessStatusCode process(ProgramOptions options);
+    ProcessStatusCode process(ArgsParser& argsParser);
 };
 
 #endif

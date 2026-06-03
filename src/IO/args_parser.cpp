@@ -1,9 +1,9 @@
 #include "args_parser.hpp"
-#include "globals.hpp"
 
-ParseStatusCode ArgsParser::parse(int argc, char* argv[],
-                                  ProgramOptions& options)
+ParseStatusCode ArgsParser::parse(int argc, char* argv[])
 {
+    const size_t FLAGS_CNT = 3;
+
     int opt = 0, optionIndex = 0;
 
     const struct option LONG_OPTIONS[FLAGS_CNT + 1] = {
@@ -16,7 +16,7 @@ ParseStatusCode ArgsParser::parse(int argc, char* argv[],
 
     if(argc <= 1)
     {
-        options.printHelpMsg = true;
+        _printHelpMsg = true;
         return ParseStatusCode::validArgs;
     }
 
@@ -26,15 +26,16 @@ ParseStatusCode ArgsParser::parse(int argc, char* argv[],
         switch(opt)
         {
         case 'h':
-            options.printHelpMsg = true;
+            _printHelpMsg = true;
             return ParseStatusCode::validArgs;
 
         case 'i':
-            options.inputFileName = std::string(optarg);
+            _isInputFile = true;
+            _inputFileName = std::string(optarg);
             break;
 
         case 'o':
-            options.outputFileName = std::string(optarg);
+            _outputFileName = std::string(optarg);
             break;
 
         default:
@@ -48,4 +49,24 @@ ParseStatusCode ArgsParser::parse(int argc, char* argv[],
 const std::vector<FilterDescriptor>& ArgsParser::getFiltersVec() const
 {
     return _filterDescriptors;
+}
+
+const std::string& ArgsParser::getInputFileName() const
+{
+    return _inputFileName;
+}
+
+const std::string& ArgsParser::getOutputFileName() const
+{
+    return _outputFileName;
+}
+
+bool ArgsParser::getHelpMsgStatus() const
+{
+    return _printHelpMsg;
+}
+
+bool ArgsParser::getInputFileStatus() const
+{
+    return _isInputFile;
 }
