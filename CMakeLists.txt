@@ -90,6 +90,8 @@ add_module_library(utils_lib utils
 
 add_module_library(sound_lib sound_module
     src/sound_module/waveform.cpp
+    src/sound_module/filters.cpp
+    src/sound_module/pipeline.cpp
 )
 
 target_link_libraries(io_lib PUBLIC sound_lib utils_lib)

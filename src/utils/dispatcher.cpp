@@ -4,7 +4,7 @@
 #include "output.hpp"
 #include <iostream>
 
-ProcessStatusCode Dispatcher::process(ArgsParser& argsParser)
+void Dispatcher::process(ArgsParser& argsParser)
 {
     OutputHandler outputHandler{};
     Waveform waveform{};
@@ -12,7 +12,7 @@ ProcessStatusCode Dispatcher::process(ArgsParser& argsParser)
     if(argsParser.getHelpMsgStatus())
     {
         outputHandler.printHelpMsg();
-        return ProcessStatusCode::okStatus;
+        return;
     }
 
     if(argsParser.getInputFileStatus())
@@ -29,6 +29,4 @@ ProcessStatusCode Dispatcher::process(ArgsParser& argsParser)
             throw AppException("Something went wrong");
         }
     }
-
-    return ProcessStatusCode::okStatus;
 }

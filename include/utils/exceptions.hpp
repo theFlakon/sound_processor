@@ -28,6 +28,15 @@ private:
     std::string _path;
 };
 
+class InvalidArgsException: public IOException
+{
+public:
+    explicit InvalidArgsException(const std::string& description)
+        : IOException("Invalid flag", description)
+    {
+    }
+};
+
 class FileNotFoundException: public IOException
 {
 public:

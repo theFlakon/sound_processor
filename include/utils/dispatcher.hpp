@@ -3,18 +3,12 @@
 
 #include "args_parser.hpp"
 
-enum class ProcessStatusCode
-{
-    okStatus = 1,
-    notOkStatus = -1
-};
-
 class Dispatcher
 {
 public:
     Dispatcher() = default;
 
-    ProcessStatusCode process(ArgsParser& argsParser);
+    void process(ArgsParser& argsParser);
 };
 
 #endif

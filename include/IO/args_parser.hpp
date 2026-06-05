@@ -1,39 +1,45 @@
 #ifndef ARGS_PARSER
 #define ARGS_PARSER
 
+#include <exceptions.hpp>
 #include <getopt.h>
 #include <string>
 #include <vector>
 
-using FilterDescriptor = int;
+using FilterOptions = std::vector<std::string>;
 
-enum class ParseStatusCode
+struct FilterDescriptor
 {
-    validArgs = 0,     // Correct arguments
-    invalidArgs = -1,  // Incorrect arguments
+    std::string filterName{};
+    FilterOptions options{};
 };
 
 class ArgsParser
 {
+    // Constructs && Destructors
 public:
-    ArgsParser() = default;  // Default constrs/destrs will suffice our goals
-    ParseStatusCode parse(int argc,
-                          char* argv[]);  // Main func that parses input args
+    ArgsParser() = default;
+
+    // Basic Methods
+public:
+    void parse(int argc,
+               char* argv[]);  // Main func that parses input args
 
     // Getters && setters
+public:
     const std::string& getInputFileName() const;
     const std::string& getOutputFileName() const;
     bool getHelpMsgStatus() const;
     bool getInputFileStatus() const;
 
-    const std::vector<FilterDescriptor>& getFiltersVec() const;
-
 private:
+    void addFiltArg2PipeLine(std::vector<std::string>& filterOptions);
+
+    std::vector<FilterDescriptor> _filterDescriptorsVec{};
     std::string _inputFileName{};
     std::string _outputFileName{};
     bool _printHelpMsg{};
     bool _isInputFile{};
-    std::vector<FilterDescriptor> _filterDescriptors{};
 };
 
 #endif
