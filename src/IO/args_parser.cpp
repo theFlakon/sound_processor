@@ -1,5 +1,5 @@
 #include "args_parser.hpp"
-#include <iostream>
+#include "filter_registry.hpp"
 
 static FilterDescriptor getFilterDescriptor(int argc, char* argv[],
                                             int& argvIdx);
@@ -36,12 +36,13 @@ void ArgsParser::parse(int argc, char* argv[])
             return;
 
         case 'i':
-            _isInputFile = true;
-            _inputFileName = std::string(optarg);
+            setInputFile(optarg);
+            checkFileExistence(_inputFile);
             break;
 
         case 'o':
-            _outputFileName = std::string(optarg);
+            setOutputFile(optarg);
+            checkFileExistence(_outputFile);
             break;
 
         case 'f':
@@ -57,7 +58,7 @@ void ArgsParser::parse(int argc, char* argv[])
         default:
         {
             std::string invalidFlagDescr = std::string("unrecognized option ") +
-                                           "'" + std::string(argv[optind]) +
+                                           "'" + std::string(argv[optind - 1]) +
                                            "'" + "\n" +
                                            "Please, type -h (or --help) to "
                                            "know all the possible options list";
@@ -72,12 +73,11 @@ FilterDescriptor getFilterDescriptor(int argc, char* argv[], int& argvIdx)
 {
     FilterDescriptor result{};
 
-    std::cout << argv[argvIdx] << std::endl;
     result.filterName = std::string(argv[argvIdx++]);
 
-    while(argvIdx < argc && argv[argvIdx][0] != '-')
+    while(argvIdx < argc &&
+          (argv[argvIdx][0] != '-' || std::isdigit(argv[argvIdx][1])))
     {
-        std::cout << argv[argvIdx] << std::endl;
         result.options.emplace_back(argv[argvIdx]);
         ++argvIdx;
     }
@@ -85,14 +85,19 @@ FilterDescriptor getFilterDescriptor(int argc, char* argv[], int& argvIdx)
     return result;
 }
 
-const std::string& ArgsParser::getInputFileName() const
+const std::filesystem::path& ArgsParser::getInputFile() const
 {
-    return _inputFileName;
+    return _inputFile;
 }
 
-const std::string& ArgsParser::getOutputFileName() const
+const std::filesystem::path& ArgsParser::getOutputFile() const
 {
-    return _outputFileName;
+    return _outputFile;
+}
+
+const std::vector<FilterDescriptor>& ArgsParser::getFilterDescriptorsVec() const
+{
+    return _filterDescriptorsVec;
 }
 
 bool ArgsParser::getHelpMsgStatus() const
@@ -100,7 +105,8 @@ bool ArgsParser::getHelpMsgStatus() const
     return _printHelpMsg;
 }
 
-bool ArgsParser::getInputFileStatus() const
+void ArgsParser::checkFileExistence(const std::filesystem::path& file)
 {
-    return _isInputFile;
+    if(!std::filesystem::exists(file))
+        throw FileNotFoundException(_inputFile);
 }

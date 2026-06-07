@@ -7,16 +7,15 @@
 class PipeLine
 {
 public:
-    ~PipeLine() = default;
-
-    bool apply(Waveform* sound);
+    void apply(Waveform& sound);
 
 public:
-    IFilter* addFilter(IFilter* filter);
-    size_t getFilterNumbers() const;
-    IFilter* operator[](size_t idx) const;
+    void addFilter(std::unique_ptr<IFilter> filter);
+    size_t getFiltersCnt() const;
+    IFilter& operator[](size_t idx);
+    const IFilter& operator[](size_t idx) const;
 
-protected:
+private:
     std::vector<std::unique_ptr<IFilter>> _filters;
 };
 

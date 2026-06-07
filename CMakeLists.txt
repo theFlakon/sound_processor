@@ -90,13 +90,14 @@ add_module_library(utils_lib utils
 
 add_module_library(sound_lib sound_module
     src/sound_module/waveform.cpp
+    src/sound_module/filter_registry.cpp
     src/sound_module/filters.cpp
     src/sound_module/pipeline.cpp
 )
 
 target_link_libraries(io_lib PUBLIC sound_lib utils_lib)
 target_link_libraries(utils_lib PUBLIC io_lib)
-#target_link_libraries(sound_lib PUBLIC )
+target_link_libraries(sound_lib PUBLIC utils_lib)
 
 # --------------------------------------------------
 # Executable

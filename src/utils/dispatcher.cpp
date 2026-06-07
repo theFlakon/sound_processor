@@ -1,13 +1,13 @@
 #include "dispatcher.hpp"
-#include "exceptions.hpp"
+#include "filter_registry.hpp"
 #include "io_bin.hpp"
 #include "output.hpp"
-#include <iostream>
 
 void Dispatcher::process(ArgsParser& argsParser)
 {
     OutputHandler outputHandler{};
-    Waveform waveform{};
+    std::unique_ptr<Waveform> sound{};
+    PipeLine pipeLine{};
 
     if(argsParser.getHelpMsgStatus())
     {
@@ -15,18 +15,44 @@ void Dispatcher::process(ArgsParser& argsParser)
         return;
     }
 
-    if(argsParser.getInputFileStatus())
-    {
-        IOBinReader reader(argsParser.getInputFileName());
+    sound = readInput(argsParser.getInputFile());
+    pipeLine = constructPipeLine(argsParser.getFilterDescriptorsVec());
+    pipeLine.apply(*sound);
 
-        try
-        {
-            reader.readFile(waveform);
-        }
-        catch(const IOException& error)
-        {
-            std::cerr << error.what() << std::endl;
-            throw AppException("Something went wrong");
-        }
+    writeOutput(argsParser.getOutputFile(), *sound);
+}
+
+PipeLine Dispatcher::constructPipeLine(
+    const std::vector<FilterDescriptor>& filterDescriptorsVec)
+{
+    PipeLine pipeLine{};
+
+    for(const FilterDescriptor& filterDescriptor: filterDescriptorsVec)
+    {
+        std::unique_ptr<IFilter> filter = FilterRegistry::createFilter(
+            filterDescriptor.filterName, filterDescriptor.options);
+
+        pipeLine.addFilter(std::move(filter));
     }
+
+    return pipeLine;
+}
+
+void Dispatcher::writeOutput(const std::filesystem::path& fileName,
+                             const Waveform& waveform)
+{
+    IOBinWriter writer(fileName);
+
+    writer.writeFile(waveform);
+}
+
+std::unique_ptr<Waveform>
+Dispatcher::readInput(const std::filesystem::path& fileName)
+{
+    std::unique_ptr<Waveform> sound = std::make_unique<Waveform>();
+    IOBinReader reader(fileName);
+
+    reader.readFile(*sound);
+
+    return sound;
 }

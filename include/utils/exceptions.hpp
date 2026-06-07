@@ -55,4 +55,13 @@ public:
     }
 };
 
+class FileWriteException: public IOException
+{
+public:
+    explicit FileWriteException(const std::string& path)
+        : IOException(path, "write failed")
+    {
+    }
+};
+
 #endif

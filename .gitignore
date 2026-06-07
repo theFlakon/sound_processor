@@ -2,4 +2,4 @@
 .clang-tidy
 .cache/
 build/
-test_sound.wav
+test_sound*

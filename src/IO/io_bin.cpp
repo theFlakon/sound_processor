@@ -6,12 +6,9 @@ static size_t calcNumSamples(uint16_t bitsPerSample, uint16_t channelsCnt,
 
 void IOBinReader::readFile(Waveform& waveform)
 {
-    const std::string& fileName = getFileName();
+    const std::filesystem::path& file = getFile();
 
-    std::ifstream inputFileStream(fileName, std::ios::binary);
-
-    if(!inputFileStream.is_open())
-        throw FileNotFoundException(fileName);
+    std::ifstream inputFileStream(file, std::ios::binary);
 
     FmtChunk& fmtChunk = waveform.getFmtChunk();
     DataChunk& dataChunk = waveform.getDataChunk();
@@ -25,8 +22,19 @@ void IOBinReader::readFile(Waveform& waveform)
                                        fmtChunk.channels, dataChunk.size);
     samplesDest.resize(numSamples);
     readSamples(inputFileStream, samplesDest, dataChunk.size);
+}
 
-    std::cout << numSamples << std::endl;
+void IOBinWriter::writeFile(const Waveform& waveform)
+{
+    const std::filesystem::path& file = getFile();
+
+    std::ofstream outputFileStream(file, std::ios::binary);
+
+    writeChunk(outputFileStream, waveform.getRiffChunk());
+    writeChunk(outputFileStream, waveform.getFmtChunk());
+    writeChunk(outputFileStream, waveform.getDataChunk());
+
+    writeSamples(outputFileStream, waveform.getSoundSamplesBuffer());
 }
 
 void IOBinReader::readSamples(std::ifstream& inputFileStream,
@@ -37,6 +45,16 @@ void IOBinReader::readSamples(std::ifstream& inputFileStream,
 
     if(!inputFileStream)
         throw FileReadException("samples");
+}
+
+void IOBinWriter::writeSamples(std::ofstream& outputFileStream,
+                               const std::vector<int16_t>& source)
+{
+    outputFileStream.write(reinterpret_cast<const char*>(source.data()),
+                           static_cast<std::streamsize>(source.size()));
+
+    if(!outputFileStream)
+        throw FileWriteException("samples");
 }
 
 size_t calcNumSamples(uint16_t bitsPerSample, uint16_t channelsCnt,

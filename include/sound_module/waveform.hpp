@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <vector>
 
+using SoundSamplesVec = std::vector<int16_t>;
+
 struct __attribute__((packed)) RiffChunk
 {
     uint32_t sign{};
@@ -37,13 +39,18 @@ public:
     RiffChunk& getRiffChunk();
     FmtChunk& getFmtChunk();
     DataChunk& getDataChunk();
-    std::vector<int16_t>& getSoundSamplesBuffer();
+    SoundSamplesVec& getSoundSamplesBuffer();
+
+    const RiffChunk& getRiffChunk() const;
+    const FmtChunk& getFmtChunk() const;
+    const DataChunk& getDataChunk() const;
+    const SoundSamplesVec& getSoundSamplesBuffer() const;
 
 private:
     RiffChunk _riffChunk{};
     FmtChunk _fmtChunk{};
     DataChunk _dataChunk{};
-    std::vector<int16_t> _soundSamples{};
+    SoundSamplesVec _soundSamples{};
 };
 
 #endif

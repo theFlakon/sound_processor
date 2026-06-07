@@ -11,13 +11,21 @@ int main(int argc, char* argv[])
     {
         parser.parse(argc, argv);
     }
-    catch(const InvalidArgsException& error)
+    catch(const AppException& error)
     {
         std::cerr << error.what() << std::endl;
         return EXIT_FAILURE;
     }
 
-    dispatcher.process(parser);
+    try
+    {
+        dispatcher.process(parser);
+    }
+    catch(const AppException& error)
+    {
+        std::cerr << error.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
