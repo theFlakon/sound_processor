@@ -55,6 +55,15 @@ public:
     }
 };
 
+class InvalidArgumentException: public std::invalid_argument
+{
+public:
+    explicit InvalidArgumentException(const std::string& msg)
+        : std::invalid_argument(msg)
+    {
+    }
+};
+
 class FileWriteException: public IOException
 {
 public:

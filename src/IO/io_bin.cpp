@@ -50,8 +50,10 @@ void IOBinReader::readSamples(std::ifstream& inputFileStream,
 void IOBinWriter::writeSamples(std::ofstream& outputFileStream,
                                const std::vector<int16_t>& source)
 {
-    outputFileStream.write(reinterpret_cast<const char*>(source.data()),
-                           static_cast<std::streamsize>(source.size()));
+    const auto BYTES =
+        static_cast<std::streamsize>(source.size() * sizeof(int16_t));
+
+    outputFileStream.write(reinterpret_cast<const char*>(source.data()), BYTES);
 
     if(!outputFileStream)
         throw FileWriteException("samples");

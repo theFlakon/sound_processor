@@ -40,7 +40,6 @@ void ArgsParser::parse(int argc, char* argv[])
 
         case 'o':
             setOutputFile(optarg);
-            checkFileExistence(_outputFile);
             break;
 
         case 'f':
@@ -120,8 +119,13 @@ bool ArgsParser::getHelpMsgStatus() const
     return _printHelpMsg;
 }
 
+bool ArgsParser::isOutFile() const
+{
+    return _isOutFile;
+}
+
 void ArgsParser::checkFileExistence(const std::filesystem::path& file)
 {
     if(!std::filesystem::exists(file))
-        throw FileNotFoundException(_inputFile);
+        throw FileNotFoundException(file);
 }

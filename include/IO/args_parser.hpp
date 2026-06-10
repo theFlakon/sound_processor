@@ -6,7 +6,6 @@
 #include <filesystem>
 #include <getopt.h>
 #include <memory>
-#include <stack>
 #include <string>
 #include <vector>
 
@@ -35,12 +34,14 @@ public:
     template <typename T_> void setOutputFile(const T_& fileName)
     {
         _outputFile = fileName;
+        _isOutFile = true;
     }
 
     const std::filesystem::path& getInputFile() const;
     const std::filesystem::path& getOutputFile() const;
     const PipeLine& getPipeline() const;
     bool getHelpMsgStatus() const;
+    bool isOutFile() const;
 
 private:
     void addFiltArg2PipeLine(std::vector<std::string>& filterOptions);
@@ -51,6 +52,7 @@ private:
     std::filesystem::path _inputFile{};
     std::filesystem::path _outputFile{};
     bool _printHelpMsg{};
+    bool _isOutFile{};
 };
 
 class CmdLineArgs2PipelineConverter

@@ -12,6 +12,9 @@ void Dispatcher::process(ArgsParser& argsParser)
         return;
     }
 
+    if(!argsParser.isOutFile())
+        return;
+
     auto sound = readInput(argsParser.getInputFile());
     argsParser.getPipeline().apply(*sound);
 

@@ -2,6 +2,9 @@
 #include "filter_registry.hpp"
 #include "filters.hpp"
 
+static double parseDouble(const std::string& str);
+static double parseInt(const std::string& str);
+
 std::unique_ptr<IFilter>
 FilterRegistry::createFilter(const std::string& name,
                              const std::vector<std::string>& params)
@@ -27,7 +30,7 @@ FilterRegistry::getFiltersTable()
              if(params.size() != 1)
                  throw AppException("ampl expects 1 parameter");
 
-             return std::make_unique<AmplFilter>(std::stod(params[0]));
+             return std::make_unique<AmplFilter>(parseDouble(params[0]));
          }},
 
         {"normalize",
@@ -39,7 +42,7 @@ FilterRegistry::getFiltersTable()
              if(params.empty())
                  return std::make_unique<NormalizeFilter>();  // peak = 1.0
 
-             return std::make_unique<NormalizeFilter>(std::stod(params[0]));
+             return std::make_unique<NormalizeFilter>(parseDouble(params[0]));
          }},
 
         {"silence",
@@ -49,9 +52,9 @@ FilterRegistry::getFiltersTable()
                  throw AppException("silence expects 3 parameters");
 
              return std::make_unique<SilenceFilter>(
-                 params[0],              // unit ("sec" / "ms")
-                 std::stod(params[1]),   // start
-                 std::stod(params[2]));  // end
+                 params[0],                // unit ("sec" / "ms")
+                 parseDouble(params[1]),   // start
+                 parseDouble(params[2]));  // end
          }},
 
         {"timestretch",
@@ -60,7 +63,7 @@ FilterRegistry::getFiltersTable()
              if(params.size() != 1)
                  throw AppException("timestretch expects 1 parameter");
 
-             return std::make_unique<TimestretchFilter>(std::stod(params[0]));
+             return std::make_unique<TimestretchFilter>(parseDouble(params[0]));
          }},
 
         {"lowpass",
@@ -69,7 +72,7 @@ FilterRegistry::getFiltersTable()
              if(params.size() != 1)
                  throw AppException("lowpass expects 1 parameter");
 
-             return std::make_unique<LowpassFilter>(std::stoi(params[0]));
+             return std::make_unique<LowpassFilter>(parseInt(params[0]));
          }},
 
         {"generator",
@@ -85,8 +88,8 @@ FilterRegistry::getFiltersTable()
                  if(params.size() != 3)
                      throw AppException("generator sin expects 2 parameters");
                  return std::make_unique<SinGenerator>(
-                     std::stod(params[1]),   // frequency_hz
-                     std::stod(params[2]));  // duration_ms
+                     parseDouble(params[1]),   // frequency_hz
+                     parseDouble(params[2]));  // duration_ms
              }
 
              if(type == "am")
@@ -95,11 +98,11 @@ FilterRegistry::getFiltersTable()
                      throw AppException("generator am expects 5 parameters");
 
                  return std::make_unique<AmGenerator>(
-                     std::stod(params[1]),   // amplitude
-                     std::stod(params[2]),   // carrier_hz
-                     std::stod(params[3]),   // modulation_hz
-                     std::stod(params[4]),   // depth
-                     std::stod(params[5]));  // duration_ms
+                     parseDouble(params[1]),   // amplitude
+                     parseDouble(params[2]),   // carrier_hz
+                     parseDouble(params[3]),   // modulation_hz
+                     parseDouble(params[4]),   // depth
+                     parseDouble(params[5]));  // duration_ms
              }
 
              if(type == "fm")
@@ -108,15 +111,38 @@ FilterRegistry::getFiltersTable()
                      throw AppException("generator fm expects 5 parameters");
 
                  return std::make_unique<FmGenerator>(
-                     std::stod(params[1]),   // amplitude
-                     std::stod(params[2]),   // carrier_hz
-                     std::stod(params[3]),   // modulation_hz
-                     std::stod(params[4]),   // deviation_hz
-                     std::stod(params[5]));  // duration_ms
+                     parseDouble(params[1]),   // amplitude
+                     parseDouble(params[2]),   // carrier_hz
+                     parseDouble(params[3]),   // modulation_hz
+                     parseDouble(params[4]),   // deviation_hz
+                     parseDouble(params[5]));  // duration_ms
              }
 
              throw AppException("Unknown generator type: " + type);
          }},
     };
     return TABLE;
+}
+
+double parseDouble(const std::string& str)
+{
+    try
+    {
+        return std::stod(str);
+    }
+    catch(const std::exception&)
+    {
+        throw AppException("expected a number, got: " + str);
+    }
+}
+double parseInt(const std::string& str)
+{
+    try
+    {
+        return std::stoi(str);
+    }
+    catch(const std::exception&)
+    {
+        throw AppException("expected an integer, got: " + str);
+    }
 }

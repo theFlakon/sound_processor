@@ -12,7 +12,7 @@ project(sound_processor
 # Options
 # --------------------------------------------------
 
-option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_TESTS "Build tests" ON)
 
 # --------------------------------------------------
 # Global settings
@@ -126,33 +126,41 @@ set_target_properties(program io_lib PROPERTIES
 # --------------------------------------------------
 
 if(BUILD_TESTS)
-
     include(FetchContent)
-
     FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
         GIT_TAG v3.4.0
     )
-
     FetchContent_MakeAvailable(Catch2)
+
+    list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
+    include(Catch)
 
     enable_testing()
 
     add_executable(tests
-        tests/tests.cpp
+        tests/sound_module/test_filters.cpp
+        tests/sound_module/test_filter_registry.cpp
+        tests/sound_module/test_pipeline.cpp
+        tests/IO/test_args_parser.cpp
+        tests/IO/test_io_bin.cpp
     )
 
     target_link_libraries(tests
         PRIVATE
+            project_options
             Catch2::Catch2WithMain
             sound_lib
+            io_lib
+            utils_lib
     )
 
-    target_include_directories(tests
-        PRIVATE include
+    target_include_directories(tests PRIVATE include)
+
+    set_target_properties(tests PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
     )
 
-    add_test(NAME tests COMMAND tests)
-
+    catch_discover_tests(tests)
 endif()
