@@ -2,6 +2,7 @@
 #define WAVEFORM_HPP
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 using SoundSamplesVec = std::vector<int16_t>;
@@ -96,5 +97,10 @@ private:
     DataChunk _dataChunk{};           ///< data header
     SoundSamplesVec _soundSamples{};  ///< PCM samples
 };
+
+/**
+ * @brief Constructs a default tone
+ */
+std::unique_ptr<Waveform> makeDefaultTone();
 
 #endif

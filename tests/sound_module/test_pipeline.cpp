@@ -41,6 +41,9 @@ private:
 
 }  // namespace
 
+// ─────────────────────────────────────────────
+// TEST CASES
+// ─────────────────────────────────────────────
 TEST_CASE("PipeLine: новый пайплайн пуст", "[pipeline]")  // NOLINT
 {
     PipeLine pipeline;

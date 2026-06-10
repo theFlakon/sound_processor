@@ -1,11 +1,8 @@
-#include <catch2/catch_test_macros.hpp>
-
 #include "exceptions.hpp"
 #include "filter_registry.hpp"
 #include "filters.hpp"
-
+#include <catch2/catch_test_macros.hpp>
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -13,7 +10,6 @@ namespace {
 
 using Params = std::vector<std::string>;
 
-// Удобный помощник: создать фильтр и проверить, что это именно тип T.
 template <typename T>
 bool isFilterOfType(const std::string& name, const Params& params)
 {
@@ -23,9 +19,9 @@ bool isFilterOfType(const std::string& name, const Params& params)
 
 }  // namespace
 
-// ============================================================
-//  Корректное создание каждого фильтра + диспетчеризация типа
-// ============================================================
+// ─────────────────────────────────────────────
+// TEST CASES
+// ─────────────────────────────────────────────
 TEST_CASE("createFilter: ampl создаёт AmplFilter", "[registry]")
 {
     REQUIRE(isFilterOfType<AmplFilter>("ampl", {"2.0"}));
@@ -80,9 +76,6 @@ TEST_CASE("createFilter: возвращаемый указатель не пус
     REQUIRE(f != nullptr);
 }
 
-// ============================================================
-//  Неизвестное имя фильтра
-// ============================================================
 TEST_CASE("createFilter: неизвестное имя -> AppException", "[registry][error]")
 {
     REQUIRE_THROWS_AS(FilterRegistry::createFilter("bogus", {}), AppException);
@@ -90,14 +83,10 @@ TEST_CASE("createFilter: неизвестное имя -> AppException", "[regis
 
 TEST_CASE("createFilter: имя чувствительно к регистру", "[registry][error]")
 {
-    // в таблице ключ "ampl", а не "Ampl"
     REQUIRE_THROWS_AS(FilterRegistry::createFilter("Ampl", {"2.0"}),
                       AppException);
 }
 
-// ============================================================
-//  Неверное число параметров -> AppException
-// ============================================================
 TEST_CASE("createFilter: ampl без параметров -> AppException",
           "[registry][error]")
 {
@@ -139,9 +128,6 @@ TEST_CASE("createFilter: lowpass без параметров -> AppException",
                       AppException);
 }
 
-// ============================================================
-//  Генераторы: ошибки типа и числа параметров -> AppException
-// ============================================================
 TEST_CASE("createFilter: generator без типа -> AppException",
           "[registry][generator][error]")
 {
@@ -183,9 +169,6 @@ TEST_CASE(
         AppException);
 }
 
-// ============================================================
-//  Недопустимые ЗНАЧЕНИЯ -> FilterParamError (из конструкторов)
-// ============================================================
 TEST_CASE("createFilter: normalize peak вне [0,1] -> FilterParamError",
           "[registry][error]")
 {
@@ -222,14 +205,10 @@ TEST_CASE("createFilter: silence неверный unit -> FilterParamError",
         FilterParamError);
 }
 
-// ============================================================
-//  Нечисловые параметры -> std::invalid_argument (из std::stod/stoi)
-// ============================================================
 TEST_CASE(
     "createFilter: нечисловой параметр пробрасывает std::invalid_argument",
     "[registry][error]")
 {
-    // std::stod("abc") бросает std::invalid_argument, НЕ AppException
     REQUIRE_THROWS_AS(FilterRegistry::createFilter("ampl", {"abc"}),
                       AppException);
 }

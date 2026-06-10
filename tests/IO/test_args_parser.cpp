@@ -14,8 +14,10 @@ public:
     explicit Argv(std::vector<std::string> args): _storage(std::move(args))
     {
         _ptrs.reserve(_storage.size() + 1);
-        for(auto& s: _storage)
-            _ptrs.push_back(s.data());
+
+        for(auto& str: _storage)
+            _ptrs.push_back(str.data());
+
         _ptrs.push_back(nullptr);
     }
     int argc()
@@ -39,9 +41,11 @@ void resetGetopt()
 
 void runParse(ArgsParser& parser, std::vector<std::string> args)
 {
-    Argv a(std::move(args));
+    Argv arguments(std::move(args));
+
     resetGetopt();
-    parser.parse(a.argc(), a.argv());
+
+    parser.parse(arguments.argc(), arguments.argv());
 }
 
 class TempFile

@@ -164,3 +164,37 @@ if(BUILD_TESTS)
 
     catch_discover_tests(tests)
 endif()
+
+# --------------------------------------------------
+# Documentation (Doxygen)
+# --------------------------------------------------
+find_package(Doxygen OPTIONAL_COMPONENTS dot)
+
+if(DOXYGEN_FOUND)
+    set(DOXYGEN_INPUT_DIR       ${PROJECT_SOURCE_DIR}/include)
+    set(DOXYGEN_OUTPUT_DIR      ${CMAKE_BINARY_DIR}/docs)
+    set(DOXYGEN_CONFIG_IN       ${PROJECT_SOURCE_DIR}/Doxyfile.in)
+    set(DOXYGEN_CONFIG_OUT      ${CMAKE_BINARY_DIR}/Doxyfile)
+
+    set(DOXYGEN_PROJECT_NAME    ${PROJECT_NAME})
+    set(DOXYGEN_PROJECT_VERSION ${PROJECT_VERSION})
+
+    configure_file(${DOXYGEN_CONFIG_IN} ${DOXYGEN_CONFIG_OUT} @ONLY)
+
+    add_custom_target(docs
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_CONFIG_OUT}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM
+    )
+
+    add_custom_target(docs-clean
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${DOXYGEN_OUTPUT_DIR}
+        COMMENT "Removing generated documentation"
+        VERBATIM
+    )
+
+    message(STATUS "Doxygen found: documentation targets 'docs' and 'docs-clean' available")
+else()
+    message(STATUS "Doxygen not found: documentation targets unavailable")
+endif()

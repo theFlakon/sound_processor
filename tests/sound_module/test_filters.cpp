@@ -1,9 +1,7 @@
-#include <catch2/catch_test_macros.hpp>
-
 #include "filters.hpp"
 #include "waveform.hpp"
-
 #include <algorithm>
+#include <catch2/catch_test_macros.hpp>
 #include <cmath>
 #include <cstdint>
 #include <vector>
@@ -39,6 +37,10 @@ int maxAbs(const std::vector<int16_t>& v)
 }
 
 }  // namespace
+
+// ─────────────────────────────────────────────
+// TEST CASES
+// ─────────────────────────────────────────────
 
 TEST_CASE("AmplFilter: умножение на коэффициент", "[ampl]")
 {

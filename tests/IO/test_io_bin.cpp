@@ -29,7 +29,7 @@ struct TempFile
     ~TempFile()
     {
         std::error_code ec;
-        std::filesystem::remove(path, ec);  // игнорируем ошибку при удалении
+        std::filesystem::remove(path, ec);
     }
 
     std::string str() const

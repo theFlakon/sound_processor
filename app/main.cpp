@@ -5,7 +5,6 @@
 int main(int argc, char* argv[])
 {
     ArgsParser parser{};
-    Dispatcher dispatcher{};
 
     try
     {
@@ -19,7 +18,7 @@ int main(int argc, char* argv[])
 
     try
     {
-        dispatcher.process(parser);
+        Dispatch::process(parser);
     }
     catch(const AppException& error)
     {

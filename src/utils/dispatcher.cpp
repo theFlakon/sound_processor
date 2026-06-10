@@ -2,19 +2,26 @@
 #include "io_bin.hpp"
 #include "output.hpp"
 
-void Dispatcher::process(ArgsParser& argsParser)
+static void writeOutput(const std::filesystem::path& fileName,
+                        const Waveform& waveform);
+static std::unique_ptr<Waveform>
+readInput(const std::filesystem::path& fileName);
+
+void Dispatch::process(ArgsParser& argsParser)
 {
-    OutputHandler outputHandler{};
     const std::filesystem::path& outFile = argsParser.getOutputFile();
 
     if(argsParser.getHelpMsgStatus())
     {
-        outputHandler.printHelpMsg();
+        StdOut::printHelpMsg();
         return;
     }
 
     if(outFile.empty())
+    {
+        StdOut::printEmptyOutFileMsg();
         return;
+    }
 
     auto sound = readInput(argsParser.getInputFile());
     argsParser.getPipeline().apply(*sound);
@@ -22,18 +29,21 @@ void Dispatcher::process(ArgsParser& argsParser)
     writeOutput(argsParser.getOutputFile(), *sound);
 }
 
-void Dispatcher::writeOutput(const std::filesystem::path& fileName,
-                             const Waveform& waveform)
+void writeOutput(const std::filesystem::path& fileName,
+                 const Waveform& waveform)
 {
     IOBinWriter writer(fileName);
 
     writer.writeFile(waveform);
 }
 
-std::unique_ptr<Waveform>
-Dispatcher::readInput(const std::filesystem::path& fileName)
+std::unique_ptr<Waveform> readInput(const std::filesystem::path& fileName)
 {
     std::unique_ptr<Waveform> sound = std::make_unique<Waveform>();
+
+    if(fileName.empty())
+        return makeDefaultTone();
+
     IOBinReader reader(fileName);
 
     reader.readFile(*sound);

@@ -1,0 +1,59 @@
+# --------------------------------------------------
+# Project info
+# --------------------------------------------------
+PROJECT_NAME           = "Sound Processor"
+PROJECT_NUMBER         = 1.0.0
+PROJECT_BRIEF          = "Audio processing pipeline"
+OUTPUT_DIRECTORY       = docs
+
+# --------------------------------------------------
+# Input
+# --------------------------------------------------
+INPUT                  = include
+FILE_PATTERNS          = *.hpp
+RECURSIVE              = YES
+EXCLUDE_PATTERNS       = */tests/*
+
+# --------------------------------------------------
+# What should be documented
+# --------------------------------------------------
+EXTRACT_ALL            = NO 
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = YES
+EXTRACT_ANON_NSPACES   = NO
+HIDE_UNDOC_MEMBERS     = YES
+HIDE_UNDOC_CLASSES     = YES
+
+# --------------------------------------------------
+# Out
+# --------------------------------------------------
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO 
+
+# --------------------------------------------------
+# Graphviz
+# --------------------------------------------------
+HAVE_DOT               = YES
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+CLASS_DIAGRAMS         = YES
+COLLABORATION_GRAPH    = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
+DOT_IMAGE_FORMAT       = svg
+
+# --------------------------------------------------
+# Quality
+# --------------------------------------------------
+WARN_IF_UNDOCUMENTED   = YES
+WARN_NO_PARAMDOC       = YES
+QUIET                  = NO
+WARNINGS               = YES
+
+# --------------------------------------------------
+# Misc
+# --------------------------------------------------
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+BUILTIN_STL_SUPPORT    = YES
