@@ -9,7 +9,7 @@ class IFilter
 {
 public:
     virtual ~IFilter() = default;
-    virtual void apply(Waveform& sound) = 0;
+    virtual void apply(Waveform& sound) const = 0;
 };
 
 class AmplFilter: public IFilter
@@ -20,7 +20,7 @@ public:
         Fcheck::requireNonNegative(factor, "ampl: factor");
     }
 
-    void apply(Waveform& sound) override;
+    void apply(Waveform& sound) const override;
 
 private:
     double _factor{};  // factor >= 0
@@ -33,7 +33,7 @@ public:
     {
         Fcheck::requireInRange(peak, 0.0, 1.0, "normalize: peak");
     }
-    void apply(Waveform& sound) override;
+    void apply(Waveform& sound) const override;
 
 private:
     double _peak{1.0};  // 0 <= peak <= 1
@@ -51,7 +51,7 @@ public:
         if(!(_end >= _start))
             throw FilterParamError("silence: end must be >= start");
     }
-    void apply(Waveform& sound) override;
+    void apply(Waveform& sound) const override;
 
 private:
     std::string _unit;  // "sec" or "ms"
@@ -66,7 +66,7 @@ public:
     {
         Fcheck::requirePositive(factor, "timestretch: factor");
     }
-    void apply(Waveform& sound) override;
+    void apply(Waveform& sound) const override;
 
 private:
     double _factor{1.0};  // factor > 0
@@ -83,7 +83,7 @@ public:
         if(windowSize % 2 == 0)
             throw FilterParamError("lowpass: window_size must be odd");
     }
-    void apply(Waveform& sound) override;
+    void apply(Waveform& sound) const override;
 
 private:
     int _windowSize{1};  // window_size >= 1 && window_size % 2 == 1
@@ -98,7 +98,7 @@ public:
         Fcheck::requireNonNegative(_freq, "sin: frequency_hz");
         Fcheck::requireNonNegative(_durationMs, "sin: duration_ms");
     }
-    void apply(Waveform& sound) override;
+    void apply(Waveform& sound) const override;
 
 private:
     double _freq{};        // frequency_hz >= 0
@@ -119,7 +119,7 @@ public:
         Fcheck::requireInRange(_depth, 0.0, 1.0, "am: depth");
         Fcheck::requireNonNegative(_durationMs, "am: duration_ms");
     }
-    void apply(Waveform& sound) override;
+    void apply(Waveform& sound) const override;
 
 private:
     double _amplitude{};     // 0 <= amplitude <= 1
@@ -144,7 +144,7 @@ public:
         Fcheck::requireNonNegative(_deviationHz, "fm: deviation_hz");
         Fcheck::requireNonNegative(_durationMs, "fm: duration_ms");
     }
-    void apply(Waveform& sound) override;
+    void apply(Waveform& sound) const override;
 
 private:
     double _amplitude{};     // 0 <= amplitude <= 1

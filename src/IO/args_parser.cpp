@@ -1,9 +1,6 @@
 #include "args_parser.hpp"
 #include "filter_registry.hpp"
 
-static FilterDescriptor getFilterDescriptor(int argc, char* argv[],
-                                            int& argvIdx);
-
 void ArgsParser::parse(int argc, char* argv[])
 {
     const size_t FLAGS_CNT = 4;
@@ -19,6 +16,7 @@ void ArgsParser::parse(int argc, char* argv[])
         {nullptr, 0, nullptr, 0}};
 
     const char* SHORT_OPTIONS = "hi:o:f:";  // NOLINT
+    CmdLineArgs2PipelineConverter converter{};
 
     if(argc <= 1)
     {
@@ -48,9 +46,9 @@ void ArgsParser::parse(int argc, char* argv[])
         case 'f':
         {
             --optind;
-            FilterDescriptor currFilterDescr =
-                getFilterDescriptor(argc, argv, optind);
-            _filterDescriptorsVec.push_back(currFilterDescr);
+
+            converter.setFilterDescriptor(argc, argv, optind);
+            converter.addFilter2PipeLine(_pipeline);
 
             break;
         }
@@ -69,20 +67,37 @@ void ArgsParser::parse(int argc, char* argv[])
     }
 }
 
-FilterDescriptor getFilterDescriptor(int argc, char* argv[], int& argvIdx)
+void CmdLineArgs2PipelineConverter::setFilterDescriptor(int argc, char* argv[],
+                                                        int& argvIdx)
 {
-    FilterDescriptor result{};
+    std::unique_ptr<FilterDescriptor> result =
+        std::make_unique<FilterDescriptor>();
 
-    result.filterName = std::string(argv[argvIdx++]);
+    result->filterName = std::string(argv[argvIdx++]);
 
     while(argvIdx < argc &&
           (argv[argvIdx][0] != '-' || std::isdigit(argv[argvIdx][1])))
     {
-        result.options.emplace_back(argv[argvIdx]);
+        result->options.emplace_back(argv[argvIdx]);
         ++argvIdx;
     }
 
-    return result;
+    _currDescriptor = std::move(result);
+}
+
+void CmdLineArgs2PipelineConverter::addFilter2PipeLine(PipeLine& pipeline)
+{
+    if(_currDescriptor == nullptr)
+        return;
+
+    FilterDescriptor filterDescriptor = *_currDescriptor;
+
+    std::unique_ptr<IFilter> filter = FilterRegistry::createFilter(
+        filterDescriptor.filterName, filterDescriptor.options);
+
+    pipeline.addFilter(std::move(filter));
+
+    _currDescriptor.reset();
 }
 
 const std::filesystem::path& ArgsParser::getInputFile() const
@@ -95,9 +110,9 @@ const std::filesystem::path& ArgsParser::getOutputFile() const
     return _outputFile;
 }
 
-const std::vector<FilterDescriptor>& ArgsParser::getFilterDescriptorsVec() const
+const PipeLine& ArgsParser::getPipeline() const
 {
-    return _filterDescriptorsVec;
+    return _pipeline;
 }
 
 bool ArgsParser::getHelpMsgStatus() const

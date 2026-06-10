@@ -7,7 +7,7 @@
 class PipeLine
 {
 public:
-    void apply(Waveform& sound);
+    void apply(Waveform& sound) const;
 
 public:
     void addFilter(std::unique_ptr<IFilter> filter);

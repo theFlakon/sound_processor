@@ -1,6 +1,6 @@
 #include "pipeline.hpp"
 
-void PipeLine::apply(Waveform& sound)
+void PipeLine::apply(Waveform& sound) const
 {
     for(size_t filterIdx = 0; filterIdx < getFiltersCnt(); ++filterIdx)
         (*this)[filterIdx].apply(sound);

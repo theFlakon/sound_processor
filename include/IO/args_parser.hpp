@@ -1,9 +1,12 @@
 #ifndef ARGS_PARSER
 #define ARGS_PARSER
 
+#include "pipeline.hpp"
 #include <exceptions.hpp>
 #include <filesystem>
 #include <getopt.h>
+#include <memory>
+#include <stack>
 #include <string>
 #include <vector>
 
@@ -17,13 +20,10 @@ struct FilterDescriptor
 
 class ArgsParser
 {
-    // Constructs && Destructors
-public:
-    ArgsParser() = default;
-
     // Basic Methods
 public:
-    void parse(int argc, char* argv[]);  // Main func that parses input args
+    void parse(int argc,
+               char* argv[]);  // Main func that parses input args
 
     // Getters && setters
 public:
@@ -39,7 +39,7 @@ public:
 
     const std::filesystem::path& getInputFile() const;
     const std::filesystem::path& getOutputFile() const;
-    const std::vector<FilterDescriptor>& getFilterDescriptorsVec() const;
+    const PipeLine& getPipeline() const;
     bool getHelpMsgStatus() const;
 
 private:
@@ -47,10 +47,20 @@ private:
 
     void checkFileExistence(const std::filesystem::path& file);
 
-    std::vector<FilterDescriptor> _filterDescriptorsVec{};
+    PipeLine _pipeline{};
     std::filesystem::path _inputFile{};
     std::filesystem::path _outputFile{};
     bool _printHelpMsg{};
+};
+
+class CmdLineArgs2PipelineConverter
+{
+public:
+    void setFilterDescriptor(int argc, char* argv[], int& argvIdx);
+    void addFilter2PipeLine(PipeLine& pipeline);
+
+private:
+    std::unique_ptr<FilterDescriptor> _currDescriptor{};
 };
 
 #endif

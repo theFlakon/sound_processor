@@ -6,7 +6,7 @@
 
 static void setupWaveform(Waveform& sound, uint32_t numSamples);
 
-void AmplFilter::apply(Waveform& sound)
+void AmplFilter::apply(Waveform& sound) const
 {
     std::vector<int16_t>& samplesVec = sound.getSoundSamplesBuffer();
 
@@ -23,7 +23,7 @@ void AmplFilter::apply(Waveform& sound)
     return;
 }
 
-void NormalizeFilter::apply(Waveform& sound)
+void NormalizeFilter::apply(Waveform& sound) const
 {
     SoundSamplesVec& samples = sound.getSoundSamplesBuffer();
 
@@ -48,7 +48,7 @@ void NormalizeFilter::apply(Waveform& sound)
     }
 }
 
-void SilenceFilter::apply(Waveform& sound)
+void SilenceFilter::apply(Waveform& sound) const
 {
     SoundSamplesVec& samples = sound.getSoundSamplesBuffer();
     auto rate = static_cast<double>(sound.getFmtChunk().sampleRate);
@@ -85,7 +85,7 @@ void SilenceFilter::apply(Waveform& sound)
     sound.getRiffChunk().size += addedBytes;
 }
 
-void TimestretchFilter::apply(Waveform& sound)
+void TimestretchFilter::apply(Waveform& sound) const
 {
     SoundSamplesVec& samples = sound.getSoundSamplesBuffer();
     size_t oldSize = samples.size();
@@ -135,7 +135,7 @@ void TimestretchFilter::apply(Waveform& sound)
         sound.getRiffChunk().size - oldDataSize + newDataSize;
 }
 
-void LowpassFilter::apply(Waveform& sound)
+void LowpassFilter::apply(Waveform& sound) const
 {
     SoundSamplesVec& samples = sound.getSoundSamplesBuffer();
     size_t samplesSize = samples.size();
@@ -166,7 +166,7 @@ void LowpassFilter::apply(Waveform& sound)
     samples = std::move(destVec);
 }
 
-void SinGenerator::apply(Waveform& sound)
+void SinGenerator::apply(Waveform& sound) const
 {
     uint32_t rate = sound.getFmtChunk().sampleRate;
     auto numSamples =
@@ -186,7 +186,7 @@ void SinGenerator::apply(Waveform& sound)
     setupWaveform(sound, numSamples);
 }
 
-void AmGenerator::apply(Waveform& sound)
+void AmGenerator::apply(Waveform& sound) const
 {
     uint32_t rate = sound.getFmtChunk().sampleRate;
     auto numSamples =
@@ -211,7 +211,7 @@ void AmGenerator::apply(Waveform& sound)
     setupWaveform(sound, numSamples);
 }
 
-void FmGenerator::apply(Waveform& sound)
+void FmGenerator::apply(Waveform& sound) const
 {
     uint32_t rate = sound.getFmtChunk().sampleRate;
     auto numSamples =
