@@ -119,11 +119,6 @@ bool ArgsParser::getHelpMsgStatus() const
     return _printHelpMsg;
 }
 
-bool ArgsParser::isOutFile() const
-{
-    return _isOutFile;
-}
-
 void ArgsParser::checkFileExistence(const std::filesystem::path& file)
 {
     if(!std::filesystem::exists(file))

@@ -5,17 +5,32 @@
 #include "waveform.hpp"
 #include <string>
 
+/**
+ * @brief Base interface for all audio filters and generators.
+ */
 class IFilter
 {
 public:
     virtual ~IFilter() = default;
+
+    /**
+     * @brief Applies filter to waveform.
+     * @param sound Audio data to modify
+     */
     virtual void apply(Waveform& sound) const = 0;
 };
 
+/**
+ * @brief Amplifies audio signal by a constant factor.
+ */
 class AmplFilter: public IFilter
 {
 public:
-    AmplFilter(double factor): _factor(factor)
+    /**
+     * @brief Constructs amplifier filter.
+     * @param factor Amplification factor (must be >= 0)
+     */
+    explicit AmplFilter(double factor): _factor(factor)
     {
         Fcheck::requireNonNegative(factor, "ampl: factor");
     }
@@ -23,25 +38,43 @@ public:
     void apply(Waveform& sound) const override;
 
 private:
-    double _factor{};  // factor >= 0
+    double _factor{};  ///< amplification factor (>= 0)
 };
 
+/**
+ * @brief Normalizes audio signal to a peak value.
+ */
 class NormalizeFilter: public IFilter
 {
 public:
+    /**
+     * @brief Constructs normalization filter.
+     * @param peak Maximum allowed amplitude (0..1)
+     */
     explicit NormalizeFilter(double peak = 1.0): _peak(peak)
     {
         Fcheck::requireInRange(peak, 0.0, 1.0, "normalize: peak");
     }
+
     void apply(Waveform& sound) const override;
 
 private:
-    double _peak{1.0};  // 0 <= peak <= 1
+    double _peak{1.0};  ///< target peak amplitude (0..1)
 };
 
+/**
+ * @brief Mutes a segment of audio signal.
+ */
 class SilenceFilter: public IFilter
 {
 public:
+    /**
+     * @brief Constructs silence filter.
+     *
+     * @param unit Time unit ("sec" or "ms")
+     * @param start Start time
+     * @param end End time
+     */
     SilenceFilter(std::string unit, double start, double end)
         : _unit(std::move(unit)), _start(start), _end(end)
     {
@@ -51,30 +84,46 @@ public:
         if(!(_end >= _start))
             throw FilterParamError("silence: end must be >= start");
     }
+
     void apply(Waveform& sound) const override;
 
 private:
-    std::string _unit;  // "sec" or "ms"
-    double _start{};    // start >= 0
-    double _end{};      // end >= start
+    std::string _unit;  ///< time unit ("sec" or "ms")
+    double _start{};    ///< start time
+    double _end{};      ///< end time
 };
 
+/**
+ * @brief Changes playback speed (time stretching).
+ */
 class TimestretchFilter: public IFilter
 {
 public:
+    /**
+     * @brief Constructs timestretch filter.
+     * @param factor Stretch factor (> 0)
+     */
     explicit TimestretchFilter(double factor): _factor(factor)
     {
         Fcheck::requirePositive(factor, "timestretch: factor");
     }
+
     void apply(Waveform& sound) const override;
 
 private:
-    double _factor{1.0};  // factor > 0
+    double _factor{1.0};  ///< time stretch factor (> 0)
 };
 
+/**
+ * @brief Simple moving average low-pass filter.
+ */
 class LowpassFilter: public IFilter
 {
 public:
+    /**
+     * @brief Constructs low-pass filter.
+     * @param windowSize Size of smoothing window (odd, >= 1)
+     */
     explicit LowpassFilter(int windowSize): _windowSize(windowSize)
     {
         if(windowSize < 1)
@@ -83,31 +132,53 @@ public:
         if(windowSize % 2 == 0)
             throw FilterParamError("lowpass: window_size must be odd");
     }
+
     void apply(Waveform& sound) const override;
 
 private:
-    int _windowSize{1};  // window_size >= 1 && window_size % 2 == 1
+    int _windowSize{1};  ///< smoothing window size
 };
 
+/**
+ * @brief Generates sine wave signal.
+ */
 class SinGenerator: public IFilter
 {
 public:
+    /**
+     * @brief Constructs sine generator.
+     * @param frequencyHz Frequency of sine wave
+     * @param durationMs Duration in milliseconds
+     */
     SinGenerator(double frequencyHz, double durationMs)
         : _freq(frequencyHz), _durationMs(durationMs)
     {
         Fcheck::requireNonNegative(_freq, "sin: frequency_hz");
         Fcheck::requireNonNegative(_durationMs, "sin: duration_ms");
     }
+
     void apply(Waveform& sound) const override;
 
 private:
-    double _freq{};        // frequency_hz >= 0
-    double _durationMs{};  // duration_ms  >= 0
+    double _freq{};        ///< frequency (Hz)
+    double _durationMs{};  ///< duration (ms)
 };
 
+/**
+ * @brief Amplitude modulation signal generator.
+ */
 class AmGenerator: public IFilter
 {
 public:
+    /**
+     * @brief Constructs AM generator.
+     *
+     * @param amplitude Base amplitude (0..1)
+     * @param carrierHz Carrier frequency
+     * @param modulationHz Modulation frequency
+     * @param depth Modulation depth (0..1)
+     * @param durationMs Duration in ms
+     */
     AmGenerator(double amplitude, double carrierHz, double modulationHz,
                 double depth, double durationMs)
         : _amplitude(amplitude), _carrierHz(carrierHz),
@@ -119,19 +190,32 @@ public:
         Fcheck::requireInRange(_depth, 0.0, 1.0, "am: depth");
         Fcheck::requireNonNegative(_durationMs, "am: duration_ms");
     }
+
     void apply(Waveform& sound) const override;
 
 private:
-    double _amplitude{};     // 0 <= amplitude <= 1
-    double _carrierHz{};     // carrier_hz   >= 0
-    double _modulationHz{};  // modulation_hz >= 0
-    double _depth{};         // 0 <= depth <= 1
-    double _durationMs{};    // duration_ms  >= 0
+    double _amplitude{};     ///< base amplitude
+    double _carrierHz{};     ///< carrier frequency
+    double _modulationHz{};  ///< modulation frequency
+    double _depth{};         ///< modulation depth
+    double _durationMs{};    ///< duration
 };
 
+/**
+ * @brief Frequency modulation signal generator.
+ */
 class FmGenerator: public IFilter
 {
 public:
+    /**
+     * @brief Constructs FM generator.
+     *
+     * @param amplitude Base amplitude (0..1)
+     * @param carrierHz Carrier frequency
+     * @param modulationHz Modulation frequency (> 0)
+     * @param deviationHz Frequency deviation
+     * @param durationMs Duration in ms
+     */
     FmGenerator(double amplitude, double carrierHz, double modulationHz,
                 double deviationHz, double durationMs)
         : _amplitude(amplitude), _carrierHz(carrierHz),
@@ -144,14 +228,15 @@ public:
         Fcheck::requireNonNegative(_deviationHz, "fm: deviation_hz");
         Fcheck::requireNonNegative(_durationMs, "fm: duration_ms");
     }
+
     void apply(Waveform& sound) const override;
 
 private:
-    double _amplitude{};     // 0 <= amplitude <= 1
-    double _carrierHz{};     // carrier_hz    >= 0
-    double _modulationHz{};  // modulation_hz >  0
-    double _deviationHz{};   // deviation_hz  >= 0
-    double _durationMs{};    // duration_ms   >= 0
+    double _amplitude{};     ///< amplitude
+    double _carrierHz{};     ///< carrier frequency
+    double _modulationHz{};  ///< modulation frequency
+    double _deviationHz{};   ///< frequency deviation
+    double _durationMs{};    ///< duration
 };
 
 #endif

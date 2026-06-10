@@ -5,6 +5,7 @@
 void Dispatcher::process(ArgsParser& argsParser)
 {
     OutputHandler outputHandler{};
+    const std::filesystem::path& outFile = argsParser.getOutputFile();
 
     if(argsParser.getHelpMsgStatus())
     {
@@ -12,7 +13,7 @@ void Dispatcher::process(ArgsParser& argsParser)
         return;
     }
 
-    if(!argsParser.isOutFile())
+    if(outFile.empty())
         return;
 
     auto sound = readInput(argsParser.getInputFile());
