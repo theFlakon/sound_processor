@@ -64,4 +64,13 @@ public:
     }
 };
 
+class FilterParamError: public std::invalid_argument
+{
+public:
+    explicit FilterParamError(const std::string& msg)
+        : std::invalid_argument("filter parameter error: " + msg)
+    {
+    }
+};
+
 #endif
